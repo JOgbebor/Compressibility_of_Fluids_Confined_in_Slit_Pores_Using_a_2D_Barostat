@@ -1,0 +1,28 @@
+# Adsorption of Ar in carbon slit pores
+# Jason Ogbebor, June 2023
+
+# ------------------------ INITIALIZATION ----------------------------
+
+units real
+dimension 3
+boundary p p p
+atom_style full
+
+log log_03.lammps
+
+# ----------------------- VARIABLES ----------------------------
+
+include "init.txt"
+
+# ----------------------- RUN GCMC ----------------------------
+
+variable N equal count(Ar)
+
+fix GCMC Ar gcmc 10 100 100 2 10101 ${Tsim} 1.0 1.0 pressure $(0.65*11.71)
+
+thermo ${nthermo}
+thermo_style custom step v_N atoms temp vol press pe ke etotal
+
+include "run.txt"
+
+write_data config_03.data nocoeff nofix

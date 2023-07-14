@@ -1,0 +1,28 @@
+variable Tsim equal 119.6 # K
+variable nthermo equal 100
+
+# ----------------------- DOMAIN/ATOM DEFINITION ----------------------------
+
+read_data 50ASlitPore.data
+
+group C type 1
+group Ar type 2
+
+mass 1 12.01 # g / mol
+mass 2 39.948 # g / mol
+
+# ------------------------ FORCE FIELDS ------------------------------
+
+variable epsff equal 0.237668 # kcal / mol
+variable sigff equal 3.40 # Ang
+
+variable epsss equal 0.05564137 # kcal/mol
+variable sigss equal 3.40 # Ang
+
+variable epssf equal sqrt(${epsss}*${epsff})
+variable sigsf equal (${sigss}+${sigff})/2
+
+pair_style lj/cut 12.0
+pair_coeff 2 2 ${epsff} ${sigff} 
+pair_coeff 1 2 ${epssf} ${sigsf}
+pair_coeff 1 1 0.0 0.0
