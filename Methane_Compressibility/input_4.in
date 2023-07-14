@@ -1,0 +1,81 @@
+# Confined LJ-Methane
+# Nicholas Corrente, May 2019
+
+# ------------------------ INITIALIZATION ----------------------------
+
+units real
+dimension 3
+boundary p p p
+atom_style full
+
+# ----------------------- ATOM DEFINITION ----------------------------
+
+read_data configuration.30A.298K.4MPa.data
+
+group carbon type 1
+group methane type 2
+
+variable delta_zhi equal -7.2
+variable delta_zlo equal 7.2
+
+delete_atoms group carbon
+
+reset_ids
+
+change_box all z delta ${delta_zlo} ${delta_zhi} boundary p p f
+
+variable epsff equal 0.2941
+variable sigff equal 3.73
+variable Tsim equal 298
+variable nthermo equal 100
+
+# ------------------------ FORCE FIELDS ------------------------------
+
+variable epsff equal 0.2941
+variable epssf equal 2.535
+variable sigff equal 3.73
+variable sigsf equal 4.40
+
+pair_style hybrid lj/cut 12
+pair_coeff 2 2 lj/cut ${epsff} ${sigff} 
+pair_coeff 1 2 lj/cut ${epssf} ${sigsf}
+pair_coeff 1 1 lj/cut 0.0 0.0
+
+# ------------------------ LJ Walls ------------------------------
+
+fix Walls methane wall/lj93 zlo EDGE ${epssf} ${sigsf} 12 zhi EDGE ${epssf} ${sigsf} 12 units box
+
+# ---------- Equilibration --------------------- 
+
+velocity all create ${Tsim} 12345
+
+fix NVT methane nvt temp ${Tsim} ${Tsim} 50
+
+compute T all temp
+compute P all pressure T
+
+fix Pxx all ave/time 1 1 1 c_P[1] ave running
+fix Pyy all ave/time 1 1 1 c_P[2] ave running
+fix Pzz all ave/time 1 1 1 c_P[3] ave running
+
+thermo ${nthermo}
+thermo_style custom step temp vol press f_Pxx f_Pyy f_Pzz pe ke etotal
+
+reset_timestep 0
+timestep 1
+
+run 100000
+
+# -------------- Barostat -------------------
+
+variable P_damp equal 1000.0
+variable P_xxyy equal (f_Pxx+f_Pyy)/2
+variable P_zz equal f_Pzz
+
+fix Barostat all press/berendsen x ${P_xxyy} ${P_xxyy} ${P_damp} y ${P_xxyy} ${P_xxyy} ${P_damp} couple xy
+
+dump d1 all atom 1000000 Frames_4MPa/dump_*
+
+log log_4.lammps
+
+run 10000000

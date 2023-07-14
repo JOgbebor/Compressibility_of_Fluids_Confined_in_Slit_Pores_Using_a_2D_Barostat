@@ -1,0 +1,55 @@
+# Adsorption of CH4 in carbon slit pores
+# Jason Ogbebor, June 2023
+
+# ------------------------ INITIALIZATION ----------------------------
+
+units real
+dimension 3
+boundary p p p
+atom_style full
+
+# ----------------------- VARIABLES ----------------------------
+
+variable Tsim equal 298 # K
+variable nthermo equal 100
+
+# ----------------------- DOMAIN/ATOM DEFINITION ----------------------------
+
+read_data 60ASlitPore.data
+
+group C type 1
+group CH4 type 2
+
+# ------------------------ FORCE FIELDS ------------------------------
+
+variable epsff equal 0.29410437 # kcal/mol
+variable sigff equal 3.73 # kcal/mol
+
+variable epsss equal 0.055641367 # Ang
+variable sigss equal 3.40 # Ang
+
+variable epssf equal sqrt(${epsss}*${epsff})
+variable sigsf equal (${sigss}+${sigff})/2
+
+pair_style lj/cut 12.0
+pair_coeff 2 2 ${epsff} ${sigff} 
+pair_coeff 1 2 ${epssf} ${sigsf}
+pair_coeff 1 1 0.0 0.0
+
+# ----------------------- RUN GCMC ----------------------------
+
+variable N equal count(CH4)
+
+variable P_Pa equal 8e6
+variable P_atm equal v_P_Pa/101325
+
+fix GCMC CH4 gcmc 10 100 100 2 10101 ${Tsim} 1.0 1.0 pressure ${P_atm}
+
+thermo ${nthermo}
+thermo_style custom step v_N atoms temp vol press pe ke etotal
+
+dump d1 all atom 200000 Frames/dump_*
+
+run 2000000
+
+write_data config_6nm_8MPa.data nocoeff nofix
