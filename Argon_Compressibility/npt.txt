@@ -1,0 +1,5 @@
+variable P_damp equal 1000.0
+variable P_xxyy equal (f_Pxx+f_Pyy)/2
+variable P_zz equal f_Pzz
+
+fix Barostat all press/berendsen x ${P_xxyy} ${P_xxyy} ${P_damp} y ${P_xxyy} ${P_xxyy} ${P_damp} couple xy

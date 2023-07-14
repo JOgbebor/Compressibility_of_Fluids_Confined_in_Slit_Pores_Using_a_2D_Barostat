@@ -1,0 +1,9 @@
+variable Tsim equal 119.6 # K
+variable nthermo equal 100
+
+variable width equal 51.0
+variable height equal 30.0
+
+region box block 0.0 ${width} 0.0 ${width} 0.0 ${height}
+
+create_box 1 box

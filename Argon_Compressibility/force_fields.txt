@@ -1,0 +1,14 @@
+variable epsff equal 0.237668 # kcal/mol
+variable epssf equal 2.160 # kcal/mol
+
+variable sigff equal 3.40 # Ang
+variable sigsf equal 4.11158 # Ang
+
+pair_style lj/cut $(5*v_sigff)
+pair_coeff 1 1 ${epsff} ${sigff} 
+
+variable wall_cut equal $(10.0*v_sigff) # Ang
+
+# ------------------------ LJ Walls ------------------------------
+
+fix Walls Ar wall/lj93 zlo EDGE ${epssf} ${sigsf} ${wall_cut} zhi EDGE ${epssf} ${sigsf} ${wall_cut} units box

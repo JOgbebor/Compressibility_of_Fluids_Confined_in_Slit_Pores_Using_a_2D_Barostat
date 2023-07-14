@@ -1,0 +1,8 @@
+tolerance 2.0
+filetype xyz
+output config_9xyz.xyz
+
+structure Ar.xyz
+  number 1365
+  inside box 1.0 1.0 2.0 50.0 50.0 28.0
+end structure

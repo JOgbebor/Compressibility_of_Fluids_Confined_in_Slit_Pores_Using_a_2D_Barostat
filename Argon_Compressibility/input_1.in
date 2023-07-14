@@ -1,0 +1,44 @@
+# Argon in IP slit silica pores
+# Jason Ogbebor, June 2023
+
+# ------------------------ INITIALIZATION ----------------------------
+
+units real
+dimension 3
+boundary p p f
+atom_style atomic
+
+variable n equal 1
+
+# ----------------------- ATOM DEFINITION ----------------------------
+
+include init.txt
+
+read_data config_${n}.data add append
+
+group Ar type 1
+
+mass 1 39.948 # g/mol
+
+# ------------------------ FORCE FIELDS ------------------------------
+
+include force_fields.txt
+
+# ---------- Equilibration --------------------- 
+
+include equil.txt
+
+dump d1 all atom 100000 Frames_${n}_NVT/dump_*
+
+include run_equil.txt
+
+# -------------- Barostat -------------------
+
+include npt.txt
+
+undump d1
+dump d2 all atom 1000000 Frames_${n}_NPT/dump_*
+
+log log_${n}.lammps
+
+include run_npt.txt

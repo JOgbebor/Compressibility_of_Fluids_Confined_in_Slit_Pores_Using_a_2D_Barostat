@@ -1,0 +1,15 @@
+velocity all create ${Tsim} 10101
+
+fix NVT all nvt temp ${Tsim} ${Tsim} 50
+
+compute T all temp
+compute P all pressure T
+
+fix Pxx all ave/time 1 1 1 c_P[1] ave running
+fix Pyy all ave/time 1 1 1 c_P[2] ave running
+fix Pzz all ave/time 1 1 1 c_P[3] ave running
+
+thermo ${nthermo}
+thermo_style custom step temp vol press f_Pxx f_Pyy f_Pzz pe ke etotal
+
+timestep 1
